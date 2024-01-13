@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 
 async function main() {
   const ghoTokenAddress = "0xa262061DBDabc152EE62a75d985Fa5dEF8F72B88";
-  const facilitatorAddress = "0xf06B79d489Fc924eBe08bCF7ECbEB2C18EDD0322";
+  const facilitatorAddress = "0x8cF9064B292FEbB17312728af0284B2e6F3a4514";
   const bucketCapacity = ethers.utils.parseUnits("1000000", 18);
 
   const [deployer] = await ethers.getSigners();

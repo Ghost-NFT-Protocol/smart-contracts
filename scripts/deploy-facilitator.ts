@@ -4,7 +4,7 @@ async function main() {
   const [deployer] = await ethers.getSigners();
 
   const ghoTokenAddress = "0xa262061DBDabc152EE62a75d985Fa5dEF8F72B88";
-  const nftCollateralContractAddress = "";
+  const nftCollateralContractAddress = "0x3Bc113E070519FeDeB0300e6A9f7A02e2D0241D8";
 
   console.log(
     `Deploying contract with the account: ${deployer.address}`

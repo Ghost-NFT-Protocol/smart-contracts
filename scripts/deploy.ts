@@ -1,4 +1,4 @@
-import { ethers, run, network } from "hardhat";
+import { ethers } from "hardhat";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -23,11 +23,11 @@ async function main() {
   await nftCollateralContract.deployed();
   console.log("NFTCollateralContract deployed to:", nftCollateralContract.address);
 
-  // Deploy GhoMintingContract
-  const GhoMintingContract = await ethers.getContractFactory("GhoMintingContract");
-  const ghoMintingContract = await GhoMintingContract.deploy(ghoToken.address);
-  await ghoMintingContract.deployed();
-  console.log("GhoMintingContract deployed to:", ghoMintingContract.address);
+  // Deploy FacilitatorContract
+  const FacilitatorContract = await ethers.getContractFactory("FacilitatorContract");
+  const facilitatorContract = await FacilitatorContract.deploy(nftCollateralContract.address, ghoToken.address);
+  await facilitatorContract.deployed();
+  console.log("FacilitatorContract deployed to:", facilitatorContract.address);
 }
 
 main()

@@ -3,7 +3,7 @@ import { ethers } from "hardhat";
 async function main() {
   const [deployer] = await ethers.getSigners();
 
-  const ghoTokenAddress = "0xa262061DBDabc152EE62a75d985Fa5dEF8F72B88";
+  const ghoTokenAddress = "0x35a26051F49b140dDa56D5aAFfa46a3DDdAFb524";
 
   console.log(
     `Deploying contract with the account: ${deployer.address}`
@@ -11,10 +11,10 @@ async function main() {
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const BurnContract = await ethers.getContractFactory("BurnContract");
+  const BurnContract = await ethers.getContractFactory("BurnContract2");
   const burnContract = await BurnContract.deploy(ghoTokenAddress);
   await burnContract.deployed();
-  console.log("BurnContract deployed to:", burnContract.address);
+  console.log("BurnContract2 deployed to:", burnContract.address);
 }
 
 main()

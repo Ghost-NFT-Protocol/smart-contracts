@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const ghoTokenAddress = "0xa262061DBDabc152EE62a75d985Fa5dEF8F72B88";
+  const ghoTokenAddress = "0x35a26051F49b140dDa56D5aAFfa46a3DDdAFb524";
 
   const [deployer] = await ethers.getSigners();
 

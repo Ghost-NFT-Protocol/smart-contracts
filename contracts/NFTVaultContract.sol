@@ -3,13 +3,14 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-contract NFTCollateralContract {
+contract NFTVaultContract {
   IERC721 public nftToken;
 
   mapping(uint256 => address) public depositors;
 
-  constructor(address _nftTokenAddress) {
-    nftToken = IERC721(_nftTokenAddress);
+  struct NFT {
+    address nftContract;
+    uint256 tokenId;
   }
 
   function depositNFT(uint256 tokenId) external {

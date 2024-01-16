@@ -1,30 +1,42 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./NFTCollateralContract.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./IGhoToken.sol";
 
 contract FacilitatorContract {
-  NFTCollateralContract public collateralContract;
   IGhoToken public ghoToken;
 
   uint256 constant LOAN_TO_VALUE_PERCENT = 50;
   uint256 constant NFT_VALUE = 1 ether;
 
-  constructor(address _collateralContract, address _ghoToken) {
-    collateralContract = NFTCollateralContract(_collateralContract);
+  struct NFT {
+    address nftContract;
+    uint256 tokenId;
+  }
+
+  mapping(address => NFT[]) public nftDeposits; // Mapping of depositor addresses to lists of NFTDeposit structs
+
+  constructor(address _ghoToken) {
     ghoToken = IGhoToken(_ghoToken);
   }
 
-  function mintGhoAgainstNFT(uint256 tokenId) external {
-    require(collateralContract.depositors(tokenId) == msg.sender, "Not the depositor");
+  function depositNFTAndMintGho(address nftContract, uint256 tokenId) external {
+    nftDeposits[msg.sender].push(NFT(nftContract, tokenId));
+    IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
     uint256 loanAmount = (NFT_VALUE * LOAN_TO_VALUE_PERCENT) / 100;
     ghoToken.mint(msg.sender, loanAmount);
   }
 
-  function repayGhoAndRetrieveNFT(uint256 tokenId, uint256 amount) external {
-    require(collateralContract.depositors(tokenId) == msg.sender, "Not the depositor");
-    ghoToken.burn(amount);
-    collateralContract.withdrawNFT(tokenId);
+  function repayGhoAndWithdrawNFT(uint256 tokenId, uint256 amount) external {
+    NFT[] storage deposits = nftDeposits[msg.sender];
+    for (uint256 i = 0; i < deposits.length; i++) {
+      if (deposits[i].tokenId == tokenId) {
+        ghoToken.burn(amount);
+        IERC721(deposits[i].nftContract).transferFrom(address(this), msg.sender, tokenId);
+        delete deposits[i];
+        break;
+      }
+    }
   }
 }

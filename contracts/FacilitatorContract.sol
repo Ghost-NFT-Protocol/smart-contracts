@@ -7,6 +7,9 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./IGhoToken.sol";
 
 contract FacilitatorContract is AccessControl {
+
+  bytes32 public constant NFT_MANAGER_ROLE = keccak256("NFT_MANAGER_ROLE");
+
   IGhoToken public ghoToken;
   AggregatorV3Interface internal nftFloorPriceFeed;
   AggregatorV3Interface internal ETHdataFeed;
@@ -21,10 +24,12 @@ contract FacilitatorContract is AccessControl {
   mapping(address => uint256) public borrowPower; // Mapping of depositor addresses to borrow power left
   mapping(address => address) public collections; // Mapping of Testnet NFTs to Corresponding data feed contracts
 
-  constructor(address _ghoToken) {
+  constructor(address _ghoToken, address admin) {
+    _setupRole(DEFAULT_ADMIN_ROLE, admin);
+    _setupRole(NFT_MANAGER_ROLE, admin);
     ghoToken = IGhoToken(_ghoToken);
 
-    collections[0x4b07E711e5C9b5bF05e69f8B7fc46F67C81A730A]=0xB677bfBc9B09a3469695f40477d05bc9BcB15F50; // Azuki
+    // collections[0x4b07E711e5C9b5bF05e69f8B7fc46F67C81A730A]=0xB677bfBc9B09a3469695f40477d05bc9BcB15F50;
 
     ETHdataFeed = AggregatorV3Interface(
       0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419
@@ -97,6 +102,11 @@ contract FacilitatorContract is AccessControl {
     // Move the last element to the deleted spot and pop the last element
     userDeposits[index] = userDeposits[userDeposits.length - 1];
     userDeposits.pop();
+  }
+
+  function addCollection(address nftAddress, address priceFeedAddress) public {
+    require(hasRole(MANAGER_ROLE, msg.sender), "Caller does not have NFT_MANAGER_ROLE");
+    collections[nftAddress] = priceFeedAddress;
   }
 
   function getNFTPrice(address nftContract) public view returns (int) {

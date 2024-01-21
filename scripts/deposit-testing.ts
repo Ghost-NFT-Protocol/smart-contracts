@@ -1,8 +1,8 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const facilitatorContractAddress = "0xAdbe6d7AbD11cef2682Eb18Ff6A95fa7014463f3";
-  const ghoTokenAddress = "0x5855B90fccf839c74F7807E9eb2782f517E006E1";
+  const facilitatorContractAddress = "0x9EA2a6f7D0Ea4Af488aD6962578848e3880FA5d7";
+  const ghoTokenAddress = "0x135512F8864B91015C3Bf913215d91c0317Ae91E";
   const nftContractAddress = "0x4b07E711e5C9b5bF05e69f8B7fc46F67C81A730A";
   const tokenId = 0;
 

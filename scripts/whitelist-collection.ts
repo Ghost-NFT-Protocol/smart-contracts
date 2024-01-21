@@ -1,10 +1,10 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const facilitatorAddress = "0xc249E01F5F361b862BFCf1c9651A20fDe18A50a4";
+  const facilitatorAddress = "0x9EA2a6f7D0Ea4Af488aD6962578848e3880FA5d7";
 
   const collectionAddress = "0x4b07E711e5C9b5bF05e69f8B7fc46F67C81A730A";
-  const priceFeedAddress = "0xB677bfBc9B09a3469695f40477d05bc9BcB15F50";
+  const priceFeedAddress = "0x9F6d70CDf08d893f0063742b51d3E9D1e18b7f74";
 
   const [deployer] = await ethers.getSigners();
 

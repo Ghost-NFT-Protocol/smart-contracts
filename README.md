@@ -1,2 +1,2 @@
-# Ghost NFT Protocol
+# Ghost NFT Protocol Smart Contracts
 

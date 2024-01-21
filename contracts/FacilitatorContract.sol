@@ -10,6 +10,7 @@ contract FacilitatorContract is AccessControl {
 
   bytes32 public constant NFT_MANAGER_ROLE = keccak256("NFT_MANAGER_ROLE");
 
+  // Interface for GHO token and Chainlink oracles for price feeds
   IGhoToken public ghoToken;
   AggregatorV3Interface internal nftFloorPriceFeed;
   AggregatorV3Interface internal ETHdataFeed;
@@ -17,6 +18,7 @@ contract FacilitatorContract is AccessControl {
   uint256 constant LOAN_TO_VALUE_PERCENT = 80;
   uint256 constant LIQUIDATION_BORROW_PERCENT = 80;
 
+  // Address of the Aave Treasury for liquidation handling
   address public AaveTreasuryAddress;
 
   struct NFT {
@@ -29,6 +31,7 @@ contract FacilitatorContract is AccessControl {
   mapping(address => address) public collections; // Mapping of Whitelisted Testnet NFT Collections to corresponding data feed contracts
   mapping(address => uint256) public liquidatedBorrowPower; // Mapping of depositor addresses to amount liquidated which is given as borrow power
 
+  // Constructor to initialize GHO token, roles, and price feeds
   constructor(address _ghoToken, address admin) {
     _setupRole(DEFAULT_ADMIN_ROLE, admin);
     _setupRole(NFT_MANAGER_ROLE, admin);
@@ -39,6 +42,7 @@ contract FacilitatorContract is AccessControl {
     );
   }
 
+  // Function for users to deposit their NFTs as collateral
   function depositNFT(address nftContract, uint256 tokenId) external {
     require(collections[nftContract] != address(0), "NFT contract not whitelisted!");
 
@@ -46,6 +50,7 @@ contract FacilitatorContract is AccessControl {
     IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
   }
 
+  // Function to borrow GHO tokens against the NFT collateral
   function borrowGHO(uint256 amount)external {
     require(amount > 0, "Borrow amount must be greater than 0!");
     require(amount <= borrowPower(msg.sender), "Insufficient borrow power!");
@@ -54,6 +59,7 @@ contract FacilitatorContract is AccessControl {
     borrowedAmount[msg.sender] += amount;
   }
 
+  // Function to repay borrowed GHO tokens
   function repayGho(uint256 amount) external {
     require(amount > 0, "Repayment amount must be greater than 0!");
     require(borrowedAmount[msg.sender] >= amount, "Cannot repay more than borrowed!");
@@ -62,6 +68,7 @@ contract FacilitatorContract is AccessControl {
     borrowedAmount[msg.sender] -= amount;
   }
 
+  // Function to withdraw deposited NFTs from the contract
   function withdrawNFT(address nftContract, uint256 tokenId) external {
     uint256 nftValueEth = uint256(getNFTPrice(nftContract));
     uint256 ethUsdPrice = uint256(getETHDataFeed());
@@ -86,6 +93,7 @@ contract FacilitatorContract is AccessControl {
     removeNFTFromDeposits(msg.sender, nftIndex);
   }
 
+  // Internal function to remove an NFT from a user's deposit list
   function removeNFTFromDeposits(address user, uint256 index) internal {
     NFT[] storage userDeposits = nftDeposits[user];
     require(index < userDeposits.length, "Invalid index");
@@ -94,11 +102,13 @@ contract FacilitatorContract is AccessControl {
     userDeposits.pop();
   }
 
+  // Function to whitelist a new NFT collection and its corresponding price feed
   function whitelistCollection(address nftAddress, address priceFeedAddress) public {
     require(hasRole(NFT_MANAGER_ROLE, msg.sender), "Caller does not have NFT_MANAGER_ROLE");
     collections[nftAddress] = priceFeedAddress;
   }
 
+  // Function to calculate the current borrow power of a user
   function borrowPower(address user) public view returns (uint256) {
     uint256 totalBorrowPower = liquidatedBorrowPower[user];
     for (uint256 i = 0; i < nftDeposits[user].length; i++) {
@@ -113,11 +123,13 @@ contract FacilitatorContract is AccessControl {
     return totalBorrowPower;
   }
 
+  // Function to set the Aave Treasury address by the admin
   function setTreasuryAddress(address aaveTreasuryAddress) public {
     require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "Caller does not have DEFAULT_ADMIN_ROLE");
     AaveTreasuryAddress = aaveTreasuryAddress;
   }
 
+  // Function to liquidate a user's NFT in case of borrow power deficiency
   function liquidateUser(address user) public {
     require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "Caller does not have DEFAULT_ADMIN_ROLE");
     require(borrowPower(user) < 0, "User's borrow power is not negative");
@@ -137,6 +149,7 @@ contract FacilitatorContract is AccessControl {
     }
   }
 
+  // Public view functions to get the current NFT price
   function getNFTPrice(address nftContract) public view returns (int) {
     require(collections[nftContract] != address(0), "NFT contract not whitelisted!");
 
@@ -151,6 +164,7 @@ contract FacilitatorContract is AccessControl {
     return nftFloorPrice;
   }
 
+  // Public view function to get the current ETH price in USD
   function getETHDataFeed() public view returns (int) {
     (
       /* uint80 roundID */,
